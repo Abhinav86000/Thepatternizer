@@ -3,75 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Patternizer</title>
+  <title>The Patternizer | Excel Data Analysis, Insights, Anomaly Detection & Business Intelligence</title>
+  <meta name="description" content="The Patternizer turns Excel and CSV data into plain-English business insights, data health summaries, hidden clusters, anomaly detection, statistical analysis, and relational charts." />
+  <meta name="keywords" content="Excel data analysis, CSV analysis tool, business intelligence dashboard, automated data insights, data health analysis, anomaly detection, clustering analysis, statistical analysis, data storytelling, KPI analysis, data visualization" />
+  <meta name="author" content="The Patternizer" />
+  <meta property="og:title" content="The Patternizer - Automated Excel Data Analysis" />
+  <meta property="og:description" content="Upload Excel data. Select one text variable and one numeric measure. Get insights, opportunities, clusters, anomalies, statistics, and visual summaries." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#050505" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #050505;
       --panel: #10100f;
       --panel-2: #171511;
-      --line: rgba(212,175,55,.18);
+      --line: rgba(212,175,55,.20);
       --gold: #d4af37;
       --gold-soft: #f5df92;
       --text: #f5f1e8;
-      --muted: #aaa39a;
-      --green: #2cc55e;
+      --muted: #b6afa4;
+      --green: #22c55e;
       --red: #ef4444;
-      font-family: Calibri, "Arial Narrow", Arial, sans-serif;
+      --blue: #60a5fa;
+      --purple: #a78bfa;
+      font-family: Calibri, "Segoe UI", Arial, sans-serif;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: #050505; overscroll-behavior-y: none; }
     body {
       margin: 0;
       min-height: 100vh;
       color: var(--text);
+      background-color: #050505;
+      overflow-x: hidden;
+      overscroll-behavior-y: none;
       background:
-        radial-gradient(circle at 18% 18%, rgba(212,175,55,.14), transparent 26%),
-        radial-gradient(circle at 82% 6%, rgba(132,85,22,.16), transparent 25%),
-        linear-gradient(135deg, #020202, #0b0a08 52%, #030303);
+        radial-gradient(circle at 12% 4%, rgba(212,175,55,.16), transparent 28%),
+        radial-gradient(circle at 85% 10%, rgba(138,85,247,.12), transparent 28%),
+        linear-gradient(135deg, #020202, #0b0a08 55%, #030303);
     }
-    .shell { min-height: 100vh; display: grid; grid-template-columns: 220px 1fr; }
+    a { color: inherit; }
+    .shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh; }
     aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
       border-right: 1px solid var(--line);
-      padding: 30px 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      padding: 24px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+      backdrop-filter: blur(18px);
     }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; cursor: pointer; }
+    .brand:hover .mark { border-color: rgba(212,175,55,.85); box-shadow: 0 0 36px rgba(212,175,55,.20); }
     .mark {
-      width: 42px; height: 42px; display: grid; place-items: center;
+      width: 38px; height: 38px; display: grid; place-items: center;
       border: 1px solid rgba(212,175,55,.55); border-radius: 14px;
-      color: var(--gold-soft); box-shadow: 0 0 28px rgba(212,175,55,.12);
+      color: var(--gold-soft); box-shadow: 0 0 28px rgba(212,175,55,.14);
     }
-    .nav { margin-top: 54px; display: grid; gap: 12px; color: var(--muted); }
-    .nav span { padding: 14px 16px; border-radius: 12px; }
-    .nav span:first-child { color: var(--gold-soft); background: rgba(212,175,55,.10); }
-    main { padding: 54px min(6vw, 72px); }
+    .nav { margin-top: 38px; display: grid; gap: 7px; color: var(--muted); font-size: 13px; }
+    .nav a { padding: 10px 12px; border-radius: 12px; text-decoration: none; }
+    .nav a:hover { color: var(--gold-soft); background: rgba(212,175,55,.10); }
+    main { padding: 26px min(5vw, 64px) 56px; }
     .top { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
     .pill {
-      border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px;
+      border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px;
       color: var(--gold-soft); background: rgba(255,255,255,.04); font-size: 13px;
     }
-    .hero { margin-top: 88px; max-width: 920px; }
-    h1 { font-size: clamp(48px, 7vw, 96px); line-height: .94; margin: 0; letter-spacing: -.03em; }
-    .lead { margin: 24px 0 0; max-width: 650px; color: #d8d1c6; font-size: 20px; line-height: 1.55; }
-    .actions { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 14px; }
     button, a.button {
-      border: 1px solid var(--line); color: var(--text); background: rgba(255,255,255,.05);
-      border-radius: 14px; padding: 14px 18px; font: inherit; cursor: pointer;
+      border: 1px solid var(--line); color: var(--text); background: rgba(255,255,255,.055);
+      border-radius: 14px; padding: 12px 16px; font: inherit; cursor: pointer;
       text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease;
     }
-    button:hover, a.button:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.42); }
-    .primary { background: linear-gradient(135deg, #d4af37, #7a5a12); color: #080808; font-weight: 800; }
-    .grid { margin-top: 70px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .card {
-      border: 1px solid var(--line); border-radius: 22px; padding: 22px;
-      background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
-      box-shadow: 0 28px 80px rgba(0,0,0,.32);
-      min-height: 170px;
+    button:hover, a.button:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.48); }
+    .primary { background: linear-gradient(135deg, #f5df92, #d4af37 55%, #7a5a12); color: #080808; font-weight: 900; }
+    .hero { min-height: 62vh; display: grid; align-content: center; max-width: 980px; padding: 44px 0; }
+    .eyebrow { color: var(--gold-soft); text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 800; }
+    h1 { font-size: clamp(40px, 6vw, 82px); line-height: .96; margin: 14px 0 0; letter-spacing: -.04em; }
+    h2 { font-size: clamp(26px, 3.4vw, 44px); line-height: 1.04; margin: 0 0 14px; letter-spacing: -.03em; }
+    h3 { margin: 0 0 8px; font-size: 19px; }
+    .lead { margin: 20px 0 0; max-width: 720px; color: #ddd6ca; font-size: 18px; line-height: 1.55; }
+    .actions { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
+    .section { padding: 56px 0; border-top: 1px solid rgba(212,175,55,.14); }
+    .section-intro { max-width: 800px; margin-bottom: 24px; }
+    .section-intro p { color: var(--muted); font-size: 16px; line-height: 1.62; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card, .wide-card, .step {
+      border: 1px solid var(--line); border-radius: 22px; padding: 20px;
+      background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+      box-shadow: 0 28px 80px rgba(0,0,0,.28);
     }
-    .card b { color: var(--gold-soft); font-size: 28px; }
-    .card p { color: var(--muted); line-height: 1.5; }
+    .wide-card { display: grid; gap: 14px; }
+    .card b, .step b { color: var(--gold-soft); font-size: 24px; display: block; margin-bottom: 10px; }
+    .card p, .wide-card p, .step p { color: var(--muted); line-height: 1.58; margin: 0; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .tag { border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 6px 9px; color: #e7dccb; background: rgba(255,255,255,.045); font-size: 12px; }
+    .feature { display: grid; grid-template-columns: 62px 1fr; gap: 16px; align-items: start; }
+    .icon {
+      width: 50px; height: 50px; border-radius: 18px; display: grid; place-items: center;
+      color: #080808; font-weight: 900; background: linear-gradient(135deg, #f5df92, #d4af37);
+    }
+    .mock {
+      border: 1px solid var(--line); border-radius: 24px; padding: 18px;
+      background: linear-gradient(145deg, rgba(8,8,8,.9), rgba(25,23,17,.85));
+      box-shadow: 0 32px 90px rgba(0,0,0,.36);
+    }
+    .bar { display: grid; grid-template-columns: 125px 1fr 64px; gap: 10px; align-items: center; margin: 11px 0; color: var(--muted); font-size: 13px; }
+    .track { height: 10px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+    .fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--gold), var(--green)); }
+    .stats-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .stat { padding: 15px; border: 1px solid rgba(255,255,255,.10); border-radius: 16px; background: rgba(255,255,255,.04); }
+    .stat strong { display: block; color: var(--gold-soft); font-size: 20px; margin-bottom: 7px; }
+    .stat span { color: var(--muted); line-height: 1.4; }
+    .steps-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+    .step { padding: 15px; }
+    .step b { font-size: 18px; }
+    .final-cta { text-align: center; max-width: 860px; margin: 0 auto; }
     dialog {
-      width: min(440px, calc(100vw - 28px)); border: 1px solid var(--line); border-radius: 24px;
+      width: min(460px, calc(100vw - 28px)); border: 1px solid var(--line); border-radius: 24px;
       color: var(--text); background: #0e0d0b; padding: 24px; box-shadow: 0 40px 120px rgba(0,0,0,.6);
     }
     dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(10px); }
@@ -80,51 +129,167 @@
       border: 1px solid var(--line); background: #070707; color: var(--text); font: inherit;
     }
     .status { min-height: 22px; color: var(--gold-soft); font-size: 14px; }
-    @media (max-width: 820px) {
+    @media (max-width: 1060px) {
       .shell { grid-template-columns: 1fr; }
-      aside { border-right: 0; border-bottom: 1px solid var(--line); }
-      .nav { display: none; }
-      main { padding: 32px 20px; }
-      .hero { margin-top: 46px; }
-      .grid { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .nav { display: flex; flex-wrap: wrap; margin-top: 22px; }
+      main { padding: 24px 18px 52px; }
+      .grid, .two, .stats-list { grid-template-columns: 1fr 1fr; }
+      .steps-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 680px) {
+      .top { align-items: flex-start; flex-direction: column; }
+      .grid, .two, .stats-list, .steps-grid { grid-template-columns: 1fr; }
+      .feature { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
     }
   </style>
 </head>
 <body>
   <div class="shell">
     <aside>
-      <div class="brand"><div class="mark">P</div><span>The<br>Patternizer</span></div>
-      <div class="nav">
-        <span>Dashboard</span>
-        <span>Upload Data</span>
-        <span>Analysis</span>
-        <span>Clustering</span>
-      </div>
+      <a class="brand brand-home" href="#description" aria-label="Go to The Patternizer home"><div class="mark">P</div><span>The<br>Patternizer</span></a>
+      <nav class="nav" aria-label="Page sections">
+        <a href="#description">Description</a>
+        <a href="#what-it-does">What it does</a>
+        <a href="#signals">Signals</a>
+        <a href="#statistics">Statistics</a>
+        <a href="#charts">Charts</a>
+        <a href="#steps">Steps</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="contact.html">Contact</a>
+      </nav>
     </aside>
+
     <main>
       <div class="top">
-        <div class="pill">Private dataset intelligence</div>
+        <div class="pill">Excel data analysis • business intelligence • automated insights</div>
         <button id="signInOpen">Sign in</button>
       </div>
-      <section class="hero">
-        <h1>Business patterns, simplified.</h1>
-        <p class="lead">Upload a dataset and turn columns into clear findings, comparison charts, anomaly signals, clusters, and executive-ready summaries.</p>
+
+      <section class="hero" id="description">
+        <div class="eyebrow">No-code data storytelling for everyone</div>
+        <h1>Turn Excel data into clear business decisions.</h1>
+        <p class="lead">The Patternizer reads your spreadsheet, studies your selected text variable and numeric measure, then explains the health of your data in simple language: what is working, what needs attention, what is hidden, and what looks unusual.</p>
         <div class="actions">
           <button class="primary" id="primarySignIn">Sign in to continue</button>
           <a class="button" href="the-patternizer.html?access=demo">Try demo with 30 rows</a>
         </div>
+        <div class="tag-row" aria-label="SEO keywords">
+          <span class="tag">Excel data analysis</span><span class="tag">CSV analysis tool</span><span class="tag">Data health check</span><span class="tag">Business intelligence dashboard</span><span class="tag">Automated insights</span>
+        </div>
       </section>
-      <section class="grid">
-        <div class="card"><b>01</b><p>Unpaid users can test the full experience with the first 30 uploaded rows.</p></div>
-        <div class="card"><b>02</b><p>Paid users get the complete Patternizer workspace after Supabase confirms access.</p></div>
-        <div class="card"><b>03</b><p>Razorpay payments are verified by webhook before full access is unlocked.</p></div>
+
+      <section class="section" id="what-it-does">
+        <div class="section-intro">
+          <h2>Upload data. Select variables. Get the story.</h2>
+          <p>Upload an Excel, CSV, TSV, or text file. Choose one string variable, such as Branch, Product, Department, Customer Type, or Region. Then choose one numeric variable, such as Sales, Revenue, Profit, Units, Cost, or Margin. Patternizer automatically compares them and creates a plain-English analysis.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><b>01</b><h3>String variable</h3><p>A text column that creates groups. Example: product, city, branch, category, customer type, department, campaign, or salesperson.</p></div>
+          <div class="card"><b>02</b><h3>Numeric measure</h3><p>A number column that can be measured. Example: sales, quantity, profit, revenue, margin, cost, score, or time spent.</p></div>
+          <div class="card"><b>03</b><h3>Narrative insight</h3><p>Instead of only showing tables, Patternizer explains what the numbers mean in practical business language.</p></div>
+        </div>
       </section>
+
+      <section class="section" id="signals">
+        <div class="section-intro">
+          <h2>Four kinds of signals from your dataset.</h2>
+          <p>The Patternizer looks at your selected variables like an analyst. It finds strengths, improvement areas, hidden groups, and unusual behaviour across the data.</p>
+        </div>
+        <div class="grid two">
+          <div class="card feature"><div class="icon">✓</div><div><h3>Good things in the data</h3><p>Finds high-performing categories, strong contributors, stable segments, and positive patterns. Helpful keywords: performance analysis, best performers, KPI highlights, growth signals.</p></div></div>
+          <div class="card feature"><div class="icon">↗</div><div><h3>Opportunities to improve</h3><p>Shows which parameters, groups, or variables have scope to improve. Helpful keywords: improvement opportunity, optimization, underperforming segment, business growth.</p></div></div>
+          <div class="card feature"><div class="icon">◇</div><div><h3>Hidden insights and clusters</h3><p>Groups similar variables together so you can see natural clusters, patterns, and segments inside the dataset. Helpful keywords: cluster analysis, customer segmentation, hidden patterns.</p></div></div>
+          <div class="card feature"><div class="icon">!</div><div><h3>Anomaly detection</h3><p>Finds unusual values in relation to other variables, so strange spikes, drops, or outliers are easier to notice. Helpful keywords: anomaly detection, outlier analysis, data quality check.</p></div></div>
+        </div>
+      </section>
+
+      <section class="section" id="statistics">
+        <div class="section-intro">
+          <h2>Statistical summary without statistical confusion.</h2>
+          <p>Patternizer gives the important numbers in a simple way. These help you understand whether your numeric measure is stable, volatile, concentrated, or unusually spread out.</p>
+        </div>
+        <div class="stats-list">
+          <div class="stat"><strong>Standard Deviation</strong><span>Shows how much values move away from the average. Useful for risk, stability, and spread analysis.</span></div>
+          <div class="stat"><strong>Kurtosis</strong><span>Shows whether the data has extreme peaks or heavy tails. Useful for spotting unusual concentration.</span></div>
+          <div class="stat"><strong>Coefficient of Variation</strong><span>Compares variation with the average. Useful when you want to compare consistency across measures.</span></div>
+          <div class="stat"><strong>Skewness</strong><span>Shows whether values lean more to one side. Useful for understanding imbalance in sales, margin, or volume.</span></div>
+        </div>
+      </section>
+
+      <section class="section" id="charts">
+        <div class="section-intro">
+          <h2>Every string variable compared with your number.</h2>
+          <p>Patternizer compares the selected numeric variable with all detected string variables and builds a relational graphical summary for each one. This helps you see how sales, profit, units, cost, or margin behave across branches, categories, products, customers, and more.</p>
+        </div>
+        <div class="grid two">
+          <div class="wide-card">
+            <h3>Relational chart summary</h3>
+            <p>Quickly compare how one numeric measure changes across every text-based group in your dataset.</p>
+            <div class="mock" aria-label="Sample chart preview">
+              <div class="bar"><span>Branch</span><div class="track"><div class="fill" style="width:86%"></div></div><span>Strong</span></div>
+              <div class="bar"><span>Product Category</span><div class="track"><div class="fill" style="width:68%"></div></div><span>Medium</span></div>
+              <div class="bar"><span>Customer Type</span><div class="track"><div class="fill" style="width:52%"></div></div><span>Watch</span></div>
+              <div class="bar"><span>Region</span><div class="track"><div class="fill" style="width:74%"></div></div><span>Clear</span></div>
+            </div>
+          </div>
+          <div class="wide-card">
+            <h3>Selected variable summary</h3>
+            <p>Get a simple summary of the selected columns, detected data types, active measures, top groups, total measure, and important changes.</p>
+            <div class="tag-row"><span class="tag">Data visualization</span><span class="tag">KPI dashboard</span><span class="tag">Relation analysis</span><span class="tag">Executive summary</span><span class="tag">Decision intelligence</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="steps">
+        <div class="section-intro">
+          <h2>How to use The Patternizer.</h2>
+          <p>The workflow is simple enough for a beginner and structured enough for a serious data analyst.</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step"><b>1</b><h3>Upload data</h3><p>Add your Excel or CSV file.</p></div>
+          <div class="step"><b>2</b><h3>Detect variables</h3><p>Let Patternizer find text, number, and time columns.</p></div>
+          <div class="step"><b>3</b><h3>Manage measures</h3><p>Select the numeric variable you want to analyse.</p></div>
+          <div class="step"><b>4</b><h3>Find all signals</h3><p>See good things, opportunities, clusters, and anomalies.</p></div>
+          <div class="step"><b>5</b><h3>Drill into details</h3><p>Open deeper summaries, charts, and comparisons.</p></div>
+          <div class="step"><b>6</b><h3>Make decisions</h3><p>Use the findings to improve performance and reduce blind spots.</p></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="final-cta">
+          <h2>Make your spreadsheet speak.</h2>
+          <p class="lead" style="margin-left:auto;margin-right:auto">Start with demo mode or sign in to check your access. Your uploaded data is analysed in the browser, and paid access is checked securely through Supabase and Vercel.</p>
+          <div class="actions" style="justify-content:center">
+            <button class="primary" id="bottomSignIn">Sign in to continue</button>
+            <a class="button" href="the-patternizer.html?access=demo">Try demo</a>
+          </div>
+        </div>
+      </section>
+          <footer class="section" style="padding-top:28px;padding-bottom:28px;border-top:1px solid var(--line);margin-top:30px">
+        <div class="tag-row" style="justify-content:center">
+          <a class="tag" href="pricing.html">Pricing</a>
+          <a class="tag" href="features.html">Features</a>
+          <a class="tag" href="how-it-works.html">How it works</a>
+          <a class="tag" href="faq.html">FAQ</a>
+          <a class="tag" href="privacy.html">Privacy Policy</a>
+          <a class="tag" href="terms.html">Terms</a>
+          <a class="tag" href="refund.html">Refund Policy</a>
+          <a class="tag" href="shipping.html">Digital Delivery</a>
+          <a class="tag" href="contact.html">Contact</a>
+        </div>
+        <p class="sub" style="text-align:center;margin-top:16px">© 2026 The Patternizer. Excel data analysis, automated business insights, anomaly detection, clustering, and data storytelling for simple decision-making.</p>
+      </footer>
     </main>
   </div>
 
   <dialog id="signinDialog">
     <h2>Sign in</h2>
-    <p class="lead" style="font-size:15px;margin-top:8px">Enter your email. In production, Supabase sends a secure magic link and then checks your paid access.</p>
+    <p class="lead" style="font-size:15px;margin-top:8px">Enter your email. Supabase will send a secure magic link, then Patternizer will check whether your account has paid or demo access.</p>
     <input id="emailInput" type="email" placeholder="you@example.com" />
     <div class="actions" style="margin-top:6px">
       <button class="primary" id="magicLinkBtn">Send magic link</button>
@@ -136,7 +301,7 @@
 
   <script>
     const SUPABASE_URL = "https://ntvetzvjrlndbcfvzviy.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50dmV0enZqcmxuZGJjZnZ6dml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzU3OTgsImV4cCI6MjA5NzAxMTc5OH0.g5dUplpyggOs8S-Vs3or4mm6rOAOKV7DWKiwAsWT1ZA";
+    const SUPABASE_ANON_KEY = "sb_publishable_Jv1eTR1edTATI5t3CGB0Dw_-igEMxzy";
     const isConfigured = !SUPABASE_URL.includes("REPLACE_") && !SUPABASE_ANON_KEY.includes("REPLACE_");
     const client = isConfigured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     const dialog = document.getElementById("signinDialog");
@@ -145,6 +310,7 @@
     function openSignin() { dialog.showModal(); }
     document.getElementById("signInOpen").addEventListener("click", openSignin);
     document.getElementById("primarySignIn").addEventListener("click", openSignin);
+    document.getElementById("bottomSignIn").addEventListener("click", openSignin);
     document.getElementById("closeDialog").addEventListener("click", () => dialog.close());
     document.getElementById("demoBtn").addEventListener("click", () => location.href = "the-patternizer.html?access=demo");
 
@@ -172,7 +338,7 @@
       if (!token) return;
       const response = await fetch("/api/access-status", { headers: { Authorization: "Bearer " + token } });
       const access = response.ok ? await response.json() : { paid: false };
-      location.href = access.paid ? "the-patternizer.html?access=paid" : "the-patternizer.html?access=demo";
+      location.href = "the-patternizer.html" + (access.paid ? "" : "?access=demo");
     }
     routeSignedInUser();
   </script>
