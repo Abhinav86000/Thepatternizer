@@ -6,6 +6,7 @@
   <title>The Patternizer</title>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #050505;
@@ -1138,11 +1139,38 @@
     let timeState = { grain: "", period: "all", compare: "none" };
     let expandedGraphField = "";
     const DEMO_ROW_LIMIT = 30;
-    const params = new URLSearchParams(location.search);
-    const requestedAccess = params.get("access") || localStorage.getItem("patternizer_access") || "demo";
-    let accessMode = requestedAccess === "paid" || requestedAccess === "full" ? "paid" : "demo";
-    let fullSourceRowCount = 0;
-    if (accessMode === "paid") localStorage.setItem("patternizer_access", "paid");
+const SUPABASE_URL = "https://ntvetzvjrlndbcfvzviy.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let accessMode = "demo";
+let fullSourceRowCount = 0;
+
+async function verifyAccess() {
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    const token = data.session?.access_token;
+
+    if (!token) {
+      accessMode = "demo";
+      updateAccessUi();
+      return;
+    }
+
+    const response = await fetch("/api/access-status", {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    const result = response.ok ? await response.json() : { paid: false };
+    accessMode = result.paid ? "paid" : "demo";
+    updateAccessUi();
+  } catch (error) {
+    accessMode = "demo";
+    updateAccessUi();
+  }
+}
 
     const el = id => document.getElementById(id);
     const pageIds = ["dashboardPage", "detailPage", "dictionaryPage", "historyPage", "clustersPage"];
@@ -2290,7 +2318,7 @@
           order_id: order.orderId,
           handler: () => {
             setNotice("Payment received. Verifying access...");
-            location.href = "the-patternizer.html?access=paid";
+            location.href = "/index.html";
           },
           theme: { color: "#d4af37" }
         });
@@ -2473,8 +2501,9 @@
       } catch {}
     }
 
-    updateAccessUi();
-    loadRows(parseDelimited(sampleCsv, "sample.csv"), "Sample_Operations.csv");
+verifyAccess().then(() => {
+  loadRows(parseDelimited(sampleCsv, "sample.csv"), "Sample_Operations.csv");
+});
   </script>
 </body>
 </html>
