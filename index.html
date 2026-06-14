@@ -135,8 +135,8 @@
   </dialog>
 
   <script>
-    const SUPABASE_URL = "REPLACE_WITH_SUPABASE_URL";
-    const SUPABASE_ANON_KEY = "REPLACE_WITH_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = "sb_publishable_Jv1eTR1edTATI5t3CGB0Dw_-igEMxzy";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im50dmV0enZqcmxuZGJjZnZ6dml5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzU3OTgsImV4cCI6MjA5NzAxMTc5OH0.g5dUplpyggOs8S-Vs3or4mm6rOAOKV7DWKiwAsWT1ZA";
     const isConfigured = !SUPABASE_URL.includes("REPLACE_") && !SUPABASE_ANON_KEY.includes("REPLACE_");
     const client = isConfigured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     const dialog = document.getElementById("signinDialog");
