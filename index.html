@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Patternizer</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #10100f;
+      --panel-2: #171511;
+      --line: rgba(212,175,55,.18);
+      --gold: #d4af37;
+      --gold-soft: #f5df92;
+      --text: #f5f1e8;
+      --muted: #aaa39a;
+      --green: #2cc55e;
+      --red: #ef4444;
+      font-family: Calibri, "Arial Narrow", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(212,175,55,.14), transparent 26%),
+        radial-gradient(circle at 82% 6%, rgba(132,85,22,.16), transparent 25%),
+        linear-gradient(135deg, #020202, #0b0a08 52%, #030303);
+    }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 220px 1fr; }
+    aside {
+      border-right: 1px solid var(--line);
+      padding: 30px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border: 1px solid rgba(212,175,55,.55); border-radius: 14px;
+      color: var(--gold-soft); box-shadow: 0 0 28px rgba(212,175,55,.12);
+    }
+    .nav { margin-top: 54px; display: grid; gap: 12px; color: var(--muted); }
+    .nav span { padding: 14px 16px; border-radius: 12px; }
+    .nav span:first-child { color: var(--gold-soft); background: rgba(212,175,55,.10); }
+    main { padding: 54px min(6vw, 72px); }
+    .top { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .pill {
+      border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px;
+      color: var(--gold-soft); background: rgba(255,255,255,.04); font-size: 13px;
+    }
+    .hero { margin-top: 88px; max-width: 920px; }
+    h1 { font-size: clamp(48px, 7vw, 96px); line-height: .94; margin: 0; letter-spacing: -.03em; }
+    .lead { margin: 24px 0 0; max-width: 650px; color: #d8d1c6; font-size: 20px; line-height: 1.55; }
+    .actions { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 14px; }
+    button, a.button {
+      border: 1px solid var(--line); color: var(--text); background: rgba(255,255,255,.05);
+      border-radius: 14px; padding: 14px 18px; font: inherit; cursor: pointer;
+      text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    button:hover, a.button:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.42); }
+    .primary { background: linear-gradient(135deg, #d4af37, #7a5a12); color: #080808; font-weight: 800; }
+    .grid { margin-top: 70px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card {
+      border: 1px solid var(--line); border-radius: 22px; padding: 22px;
+      background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+      box-shadow: 0 28px 80px rgba(0,0,0,.32);
+      min-height: 170px;
+    }
+    .card b { color: var(--gold-soft); font-size: 28px; }
+    .card p { color: var(--muted); line-height: 1.5; }
+    dialog {
+      width: min(440px, calc(100vw - 28px)); border: 1px solid var(--line); border-radius: 24px;
+      color: var(--text); background: #0e0d0b; padding: 24px; box-shadow: 0 40px 120px rgba(0,0,0,.6);
+    }
+    dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(10px); }
+    input {
+      width: 100%; margin: 14px 0; padding: 14px 16px; border-radius: 14px;
+      border: 1px solid var(--line); background: #070707; color: var(--text); font: inherit;
+    }
+    .status { min-height: 22px; color: var(--gold-soft); font-size: 14px; }
+    @media (max-width: 820px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--line); }
+      .nav { display: none; }
+      main { padding: 32px 20px; }
+      .hero { margin-top: 46px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand"><div class="mark">P</div><span>The<br>Patternizer</span></div>
+      <div class="nav">
+        <span>Dashboard</span>
+        <span>Upload Data</span>
+        <span>Analysis</span>
+        <span>Clustering</span>
+      </div>
+    </aside>
+    <main>
+      <div class="top">
+        <div class="pill">Private dataset intelligence</div>
+        <button id="signInOpen">Sign in</button>
+      </div>
+      <section class="hero">
+        <h1>Business patterns, simplified.</h1>
+        <p class="lead">Upload a dataset and turn columns into clear findings, comparison charts, anomaly signals, clusters, and executive-ready summaries.</p>
+        <div class="actions">
+          <button class="primary" id="primarySignIn">Sign in to continue</button>
+          <a class="button" href="the-patternizer.html?access=demo">Try demo with 30 rows</a>
+        </div>
+      </section>
+      <section class="grid">
+        <div class="card"><b>01</b><p>Unpaid users can test the full experience with the first 30 uploaded rows.</p></div>
+        <div class="card"><b>02</b><p>Paid users get the complete Patternizer workspace after Supabase confirms access.</p></div>
+        <div class="card"><b>03</b><p>Razorpay payments are verified by webhook before full access is unlocked.</p></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="signinDialog">
+    <h2>Sign in</h2>
+    <p class="lead" style="font-size:15px;margin-top:8px">Enter your email. In production, Supabase sends a secure magic link and then checks your paid access.</p>
+    <input id="emailInput" type="email" placeholder="you@example.com" />
+    <div class="actions" style="margin-top:6px">
+      <button class="primary" id="magicLinkBtn">Send magic link</button>
+      <button id="demoBtn">Continue demo</button>
+      <button id="closeDialog">Close</button>
+    </div>
+    <p class="status" id="signinStatus"></p>
+  </dialog>
+
+  <script>
+    const SUPABASE_URL = "REPLACE_WITH_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "REPLACE_WITH_SUPABASE_ANON_KEY";
+    const isConfigured = !SUPABASE_URL.includes("REPLACE_") && !SUPABASE_ANON_KEY.includes("REPLACE_");
+    const client = isConfigured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    const dialog = document.getElementById("signinDialog");
+    const status = document.getElementById("signinStatus");
+
+    function openSignin() { dialog.showModal(); }
+    document.getElementById("signInOpen").addEventListener("click", openSignin);
+    document.getElementById("primarySignIn").addEventListener("click", openSignin);
+    document.getElementById("closeDialog").addEventListener("click", () => dialog.close());
+    document.getElementById("demoBtn").addEventListener("click", () => location.href = "the-patternizer.html?access=demo");
+
+    document.getElementById("magicLinkBtn").addEventListener("click", async () => {
+      const email = document.getElementById("emailInput").value.trim();
+      if (!email) {
+        status.textContent = "Enter your email first.";
+        return;
+      }
+      if (!client) {
+        status.textContent = "Supabase keys are not configured yet. Opening demo mode for now.";
+        setTimeout(() => location.href = "the-patternizer.html?access=demo", 900);
+        return;
+      }
+      status.textContent = "Sending secure sign-in link...";
+      const redirectTo = location.origin + "/index.html";
+      const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+      status.textContent = error ? error.message : "Check your email for the magic link.";
+    });
+
+    async function routeSignedInUser() {
+      if (!client) return;
+      const { data } = await client.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) return;
+      const response = await fetch("/api/access-status", { headers: { Authorization: "Bearer " + token } });
+      const access = response.ok ? await response.json() : { paid: false };
+      location.href = access.paid ? "the-patternizer.html?access=paid" : "the-patternizer.html?access=demo";
+    }
+    routeSignedInUser();
+  </script>
+</body>
+</html>
